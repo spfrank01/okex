@@ -1,8 +1,8 @@
 package trade_data
 
 import (
-	"github.com/amir-the-h/okex/models/tradedata"
-	"github.com/amir-the-h/okex/responses"
+	"github.com/spfrank01/okex/models/tradedata"
+	"github.com/spfrank01/okex/responses"
 )
 
 type (

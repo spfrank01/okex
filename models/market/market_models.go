@@ -3,7 +3,7 @@ package market
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/amir-the-h/okex"
+	"github.com/spfrank01/okex"
 	"strconv"
 	"time"
 )

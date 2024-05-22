@@ -1,6 +1,6 @@
 package subaccount
 
-import "github.com/amir-the-h/okex"
+import "github.com/spfrank01/okex"
 
 type (
 	ViewList struct {
