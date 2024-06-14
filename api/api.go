@@ -35,3 +35,26 @@ func NewClient(ctx context.Context, apiKey, secretKey, passphrase string, destin
 
 	return &Client{r, c, ctx}, nil
 }
+
+// NewClientToken returns a pointer to a fresh Client using token instead of api key
+// support rest api, implement web socket client later
+func NewClientToken(ctx context.Context, accessToken string, destination okex.Destination) (*Client, error) {
+	restURL := okex.RestURL
+	//wsPubURL := okex.PublicWsURL
+	//wsPriURL := okex.PrivateWsURL
+	switch destination {
+	case okex.AwsServer:
+		restURL = okex.AwsRestURL
+		//wsPubURL = okex.AwsPublicWsURL
+		//wsPriURL = okex.AwsPrivateWsURL
+	case okex.DemoServer:
+		restURL = okex.DemoRestURL
+		//wsPubURL = okex.DemoPublicWsURL
+		//wsPriURL = okex.DemoPrivateWsURL
+	}
+
+	r := rest.NewClientToken(accessToken, restURL, destination)
+	//c := ws.NewClient(ctx, apiKey, secretKey, passphrase, map[bool]okex.BaseURL{true: wsPriURL, false: wsPubURL})
+
+	return &Client{r, nil, ctx}, nil
+}

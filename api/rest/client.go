@@ -27,6 +27,7 @@ type ClientRest struct {
 	apiKey      string
 	secretKey   []byte
 	passphrase  string
+	accessToken string
 	destination okex.Destination
 	baseURL     okex.BaseURL
 	client      *http.Client
@@ -38,6 +39,24 @@ func NewClient(apiKey, secretKey, passphrase string, baseURL okex.BaseURL, desti
 		apiKey:      apiKey,
 		secretKey:   []byte(secretKey),
 		passphrase:  passphrase,
+		baseURL:     baseURL,
+		destination: destination,
+		client:      http.DefaultClient,
+	}
+	c.Account = NewAccount(c)
+	c.SubAccount = NewSubAccount(c)
+	c.Trade = NewTrade(c)
+	c.Funding = NewFunding(c)
+	c.Market = NewMarket(c)
+	c.PublicData = NewPublicData(c)
+	c.TradeData = NewTradeData(c)
+	return c
+}
+
+// NewClientToken returns a pointer to a fresh ClientRest
+func NewClientToken(accessToken string, baseURL okex.BaseURL, destination okex.Destination) *ClientRest {
+	c := &ClientRest{
+		accessToken: accessToken,
 		baseURL:     baseURL,
 		destination: destination,
 		client:      http.DefaultClient,
@@ -96,11 +115,15 @@ func (c *ClientRest) Do(method, path string, private bool, params ...map[string]
 		return nil, err
 	}
 	if private {
-		timestamp, sign := c.sign(method, path, body)
-		r.Header.Add("OK-ACCESS-KEY", c.apiKey)
-		r.Header.Add("OK-ACCESS-PASSPHRASE", c.passphrase)
-		r.Header.Add("OK-ACCESS-SIGN", sign)
-		r.Header.Add("OK-ACCESS-TIMESTAMP", timestamp)
+		if c.accessToken != "" {
+			r.Header.Add("Authorization", "Bearer "+c.accessToken)
+		} else {
+			timestamp, sign := c.sign(method, path, body)
+			r.Header.Add("OK-ACCESS-KEY", c.apiKey)
+			r.Header.Add("OK-ACCESS-PASSPHRASE", c.passphrase)
+			r.Header.Add("OK-ACCESS-SIGN", sign)
+			r.Header.Add("OK-ACCESS-TIMESTAMP", timestamp)
+		}
 	}
 	if c.destination == okex.DemoServer {
 		r.Header.Add("x-simulated-trading", "1")
